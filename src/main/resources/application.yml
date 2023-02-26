@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      database: spring_mongo_starter
+      host: localhost
+      port: 27017
+      auto-index-creation: true
+server:
+  port: 8080
