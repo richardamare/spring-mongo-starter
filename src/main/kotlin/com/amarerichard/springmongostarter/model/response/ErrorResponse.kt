@@ -1,19 +1,27 @@
 package com.amarerichard.springmongostarter.model.response
 
-import org.springframework.http.ResponseEntity
+import java.time.LocalDateTime
 
 data class ErrorResponse(
     val code: Int,
     val message: String,
-)
+    val timestamp: LocalDateTime = LocalDateTime.now(),
+) {
+    private fun toMap() = mapOf(
+        "code" to code,
+        "message" to message,
+        "timestamp" to timestamp.toString(),
+    )
 
-fun handleExceptionResponse(e: Exception): ResponseEntity<Any> {
-    val response = when (e) {
-        is IllegalArgumentException -> ErrorResponse(400, e.message ?: "Bad Request")
-        is IllegalStateException -> ErrorResponse(400, e.message ?: "Bad Request")
-        is NoSuchElementException -> ErrorResponse(404, e.message ?: "Not Found")
-        is AccessDeniedException -> ErrorResponse(403, e.message ?: "Forbidden")
-        else -> ErrorResponse(500, e.message ?: "Internal Server Error")
+    fun toJson(): String {
+        val json = StringBuilder()
+        json.append("{")
+        toMap().forEach { (key, value) ->
+            if (value is String) json.append("\"$key\": \"$value\",")
+            else
+                json.append("\"$key\": $value,")
+        }
+        json.append("}")
+        return json.toString()
     }
-    return ResponseEntity.status(response.code).body(response)
 }

@@ -2,7 +2,7 @@ package com.amarerichard.springmongostarter.controller
 
 import com.amarerichard.springmongostarter.model.request.SignInRequest
 import com.amarerichard.springmongostarter.model.request.UserCreateRequest
-import com.amarerichard.springmongostarter.model.response.handleExceptionResponse
+import com.amarerichard.springmongostarter.model.response.AuthResponse
 import com.amarerichard.springmongostarter.service.domain.AuthService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,22 +16,14 @@ class AuthController constructor(
     private val authService: AuthService,
 ) {
     @PostMapping("/sign-up")
-    fun signUp(@RequestBody body: UserCreateRequest): ResponseEntity<Any> {
-        return try {
-            val result = authService.signUp(body)
-            ResponseEntity.ok(result)
-        } catch (e: Exception) {
-            handleExceptionResponse(e)
-        }
+    fun signUp(@RequestBody body: UserCreateRequest): ResponseEntity<AuthResponse> {
+        val result = authService.signUp(body)
+        return ResponseEntity.ok(result)
     }
 
     @PostMapping("/sign-in")
-    fun signIn(@RequestBody body: SignInRequest): ResponseEntity<Any> {
-        return try {
-            val result = authService.signIn(body)
-            ResponseEntity.ok(result)
-        } catch (e: Exception) {
-            handleExceptionResponse(e)
-        }
+    fun signIn(@RequestBody body: SignInRequest): ResponseEntity<AuthResponse> {
+        val result = authService.signIn(body)
+        return ResponseEntity.ok(result)
     }
 }

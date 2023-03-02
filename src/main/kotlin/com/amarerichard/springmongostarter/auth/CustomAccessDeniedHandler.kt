@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 class CustomAccessDeniedHandler : AccessDeniedHandler {
@@ -13,6 +14,13 @@ class CustomAccessDeniedHandler : AccessDeniedHandler {
         response: HttpServletResponse?,
         accessDeniedException: org.springframework.security.access.AccessDeniedException?,
     ) {
-        response?.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied")
+        val data = hashMapOf<String, Any>()
+        data["timestamp"] = LocalDateTime.now().toString()
+        data["status"] = 403
+        data["message"] = "Access Denied"
+
+        response?.status = 403
+        response?.contentType = "application/json"
+        response?.writer?.println(data)
     }
 }

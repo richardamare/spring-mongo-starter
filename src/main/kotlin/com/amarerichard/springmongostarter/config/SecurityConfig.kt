@@ -2,6 +2,7 @@ package com.amarerichard.springmongostarter.config
 
 import com.amarerichard.springmongostarter.auth.CustomAccessDeniedHandler
 import com.amarerichard.springmongostarter.auth.JwtAuthFilter
+import com.amarerichard.springmongostarter.model.response.ErrorResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationProvider
@@ -31,6 +32,12 @@ class SecurityConfig constructor(
             .authenticated()
             .and()
             .exceptionHandling()
+            .authenticationEntryPoint { _, response, _ ->
+                val data = ErrorResponse(401, "Unauthorized")
+                response.status = 401
+                response.contentType = "application/json"
+                response.writer.println(data.toJson())
+            }
             .accessDeniedHandler(customAccessDeniedHandler)
             .and()
             .sessionManagement()
