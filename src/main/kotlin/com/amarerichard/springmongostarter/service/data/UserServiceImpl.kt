@@ -6,6 +6,7 @@ import com.amarerichard.springmongostarter.model.document.User
 import com.amarerichard.springmongostarter.model.request.SignUpRequest
 import com.amarerichard.springmongostarter.repository.UserRepository
 import com.amarerichard.springmongostarter.service.domain.UserService
+import com.mongodb.DuplicateKeyException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -24,11 +25,13 @@ class UserServiceImpl(
             passwordDigest = passwordEncoder.encode(request.password)
         )
 
-        return userRepository.save(user)
-            .runCatching { id.toHexString() }
-            .getOrElse {
-                throw DuplicateResourceException("User with email ${request.email} already exists")
-            }
+        return try {
+            userRepository.save(user).id.toHexString()
+        } catch (e: DuplicateKeyException) {
+            throw DuplicateResourceException("User with email ${request.email} already exists")
+        } catch (e: RuntimeException) {
+            throw e
+        }
     }
 
     override fun getById(id: String): User {

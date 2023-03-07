@@ -1,9 +1,11 @@
 package com.amarerichard.springmongostarter.service.data
 
+import com.amarerichard.springmongostarter.exception.DuplicateResourceException
 import com.amarerichard.springmongostarter.exception.ResourceNotFoundException
 import com.amarerichard.springmongostarter.model.document.User
 import com.amarerichard.springmongostarter.model.request.SignUpRequest
 import com.amarerichard.springmongostarter.repository.UserRepository
+import com.mongodb.DuplicateKeyException
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -55,12 +57,53 @@ class UserServiceImplTest {
 
         val encodedPassword = "encodedPassword"
         `when`(passwordEncoder.encode(request.password)).thenReturn(encodedPassword)
-
         `when`(userRepository.save(any(User::class.java))).thenReturn(savedUser)
 
         val result = userService.create(request)
 
         assertEquals(savedUser.id.toHexString(), result)
+        verify(userRepository).save(any(User::class.java))
+    }
+
+    @Test
+    fun `create() should throw a duplicate exception`() {
+        val request = SignUpRequest(
+            firstName = savedUser.firstName,
+            lastName = savedUser.lastName,
+            email = savedUser.email,
+            password = "password"
+        )
+
+        `when`(passwordEncoder.encode(request.password))
+            .thenReturn("encodedPassword")
+        `when`(userRepository.save(any(User::class.java)))
+            .thenThrow(DuplicateKeyException::class.java)
+
+        assertThrows(DuplicateResourceException::class.java) {
+            userService.create(request)
+        }
+
+        verify(userRepository).save(any(User::class.java))
+    }
+
+    @Test
+    fun `create() should throw an exception`() {
+        val request = SignUpRequest(
+            firstName = savedUser.firstName,
+            lastName = savedUser.lastName,
+            email = savedUser.email,
+            password = "password"
+        )
+
+        `when`(passwordEncoder.encode(request.password))
+            .thenReturn("encodedPassword")
+        `when`(userRepository.save(any(User::class.java)))
+            .thenThrow(RuntimeException::class.java)
+
+        assertThrows(RuntimeException::class.java) {
+            userService.create(request)
+        }
+
         verify(userRepository).save(any(User::class.java))
     }
 
