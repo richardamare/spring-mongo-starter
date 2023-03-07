@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.security.Key
@@ -14,6 +15,12 @@ import kotlin.reflect.KFunction1
 
 @Service
 class JwtServiceImpl : JwtService {
+    @Value("\${jwt.secret}")
+    lateinit var secret: String
+
+    private val expirationTime = 1000 * 60 * 24 // default 24 hours
+
+    private val expiresAt = Date(System.currentTimeMillis() + expirationTime)
 
     override fun extractUsername(token: String?): String? {
         return extractClaim(token, Claims::getSubject)
@@ -29,7 +36,6 @@ class JwtServiceImpl : JwtService {
     }
 
     override fun generateToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String? {
-        val expiresAt = Date(System.currentTimeMillis() + 1000 * 60 * 24)
         val issuedAt = Date(System.currentTimeMillis())
         return Jwts
             .builder()
@@ -43,7 +49,7 @@ class JwtServiceImpl : JwtService {
 
     override fun isTokenValid(token: String?, userDetails: UserDetails): Boolean {
         val username = extractUsername(token)
-        return (username.equals(userDetails.username)) && !isTokenExpired(token);
+        return (username.equals(userDetails.username)) && !isTokenExpired(token)
     }
 
     override fun isTokenExpired(token: String?): Boolean {
@@ -64,11 +70,7 @@ class JwtServiceImpl : JwtService {
     }
 
     override fun getSignKey(): Key {
-        val keyBytes = Decoders.BASE64.decode(JWT_SECRET)
+        val keyBytes = Decoders.BASE64.decode(secret)
         return Keys.hmacShaKeyFor(keyBytes)
-    }
-
-    companion object {
-        private const val JWT_SECRET: String = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
     }
 }

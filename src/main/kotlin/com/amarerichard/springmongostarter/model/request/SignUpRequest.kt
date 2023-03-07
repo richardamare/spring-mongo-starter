@@ -4,7 +4,11 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import org.hibernate.validator.constraints.Length
 
-class SignInRequest(
+data class SignUpRequest(
+    @field:NotBlank(message = "First name is required")
+    val firstName: String,
+    @field:NotBlank(message = "Last name is required")
+    val lastName: String,
     @field:NotBlank(message = "Email is required")
     @field:Email(message = "Invalid email address")
     val email: String,

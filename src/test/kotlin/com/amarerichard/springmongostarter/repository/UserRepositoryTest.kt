@@ -17,7 +17,8 @@ class UserRepositoryTest {
 
     private val user = User(
         ObjectId.get(),
-        "John Doe",
+        "John",
+        "Doe",
         "john.doe@example.com",
         "password123"
     )
@@ -38,7 +39,8 @@ class UserRepositoryTest {
 
         assertThat(foundUser.isPresent).isTrue
         assertThat(foundUser.get().id).isEqualTo(user.id)
-        assertThat(foundUser.get().name).isEqualTo(user.name)
+        assertThat(foundUser.get().firstName).isEqualTo(user.firstName)
+        assertThat(foundUser.get().lastName).isEqualTo(user.lastName)
         assertThat(foundUser.get().email).isEqualTo(user.email)
         assertThat(foundUser.get().passwordDigest).isEqualTo(user.passwordDigest)
     }

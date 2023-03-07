@@ -1,6 +1,5 @@
 package com.amarerichard.springmongostarter.exception
 
-import com.amarerichard.springmongostarter.model.response.ErrorResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler

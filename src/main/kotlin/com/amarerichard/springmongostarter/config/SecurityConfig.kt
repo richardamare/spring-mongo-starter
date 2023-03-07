@@ -1,8 +1,7 @@
 package com.amarerichard.springmongostarter.config
 
-import com.amarerichard.springmongostarter.auth.CustomAccessDeniedHandler
 import com.amarerichard.springmongostarter.auth.JwtAuthFilter
-import com.amarerichard.springmongostarter.model.response.ErrorResponse
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationProvider
@@ -11,13 +10,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import java.time.LocalDateTime
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig constructor(
     private val jwtAuthFilter: JwtAuthFilter,
     private val authenticationProvider: AuthenticationProvider,
-    private val customAccessDeniedHandler: CustomAccessDeniedHandler,
 ) {
 
     @Bean
@@ -33,12 +32,17 @@ class SecurityConfig constructor(
             .and()
             .exceptionHandling()
             .authenticationEntryPoint { _, response, _ ->
-                val data = ErrorResponse(401, "Unauthorized")
+                val data = mapOf(
+                    "code" to 401,
+                    "message" to "Unauthorized",
+                    "timestamp" to LocalDateTime.now().toString(),
+                )
                 response.status = 401
                 response.contentType = "application/json"
-                response.writer.println(data.toJson())
+                val objectMapper = ObjectMapper()
+                objectMapper.writeValue(response.outputStream, data)
             }
-            .accessDeniedHandler(customAccessDeniedHandler)
+//            .accessDeniedHandler(customAccessDeniedHandler)
             .and()
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

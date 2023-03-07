@@ -1,4 +1,4 @@
-package com.amarerichard.springmongostarter.model.response
+package com.amarerichard.springmongostarter.exception
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
