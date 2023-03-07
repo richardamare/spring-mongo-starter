@@ -3,15 +3,23 @@ package com.amarerichard.springmongostarter.exception
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.web.context.request.WebRequest
 
 /**
  *
  * @project spring-mongo-starter
  * @author richardamare on 07.03.2023
  */
+@ExtendWith(MockitoExtension::class)
 class ExceptionControllerAdviceTest {
 
     private lateinit var advice: ExceptionControllerAdvice
+
+    @Mock
+    private lateinit var request: WebRequest
 
     @BeforeEach
     fun setUp() {
@@ -19,37 +27,32 @@ class ExceptionControllerAdviceTest {
     }
 
     @Test
-    fun `handleException() should handle any exception`() {
-        val response = advice.handleException(Exception("error"))
-        assertEquals(500, response.body?.code)
-        assertEquals("error", response.body?.message)
+    fun `fallbackException() returns 500 status`() {
+        val response = advice.fallbackException(Exception("error"), request)
+        assertEquals(500, response?.statusCode?.value())
     }
 
     @Test
-    fun `handleNotFoundException() should handle ResourceNotFoundException`() {
-        val response = advice.handleNotFoundException(ResourceNotFoundException("custom message"))
-        assertEquals(404, response.body?.code)
-        assertEquals("custom message", response.body?.message)
+    fun `notFoundException() returns 404 status`() {
+        val response = advice.notFoundException(ResourceNotFoundException("custom message"), request)
+        assertEquals(404, response?.statusCode?.value())
     }
 
     @Test
-    fun `handleDuplicateException() should handle DuplicateResourceException`() {
-        val response = advice.handleDuplicateException(DuplicateResourceException("custom message"))
-        assertEquals(400, response.body?.code)
-        assertEquals("custom message", response.body?.message)
+    fun `duplicateException() returns 409 status`() {
+        val response = advice.duplicateException(DuplicateResourceException("custom message"), request)
+        assertEquals(409, response?.statusCode?.value())
     }
 
     @Test
-    fun `handleIllegalArgumentException() should handle IllegalArgumentException`() {
-        val response = advice.handleIllegalArgumentException(IllegalArgumentException("custom message"))
-        assertEquals(400, response.body?.code)
-        assertEquals("custom message", response.body?.message)
+    fun `illegalArgumentException() returns 400 status`() {
+        val response = advice.illegalArgumentException(IllegalArgumentException("custom message"), request)
+        assertEquals(400, response?.statusCode?.value())
     }
 
     @Test
-    fun `handleIllegalStateException() should handle IllegalStateException`() {
-        val response = advice.handleIllegalStateException(IllegalStateException("custom message"))
-        assertEquals(500, response.body?.code)
-        assertEquals("custom message", response.body?.message)
+    fun `illegalStateException() returns 500 status`() {
+        val response = advice.illegalStateException(IllegalStateException("custom message"), request)
+        assertEquals(500, response?.statusCode?.value())
     }
 }
